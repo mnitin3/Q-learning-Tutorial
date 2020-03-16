@@ -28,6 +28,10 @@ gamma <- 0.7
 ###### Define Environment #######
 states <- seq(1, 5, by = 1);
 actions <- seq(1, 5, by = 1);
+state_seq <- cbind(merge(actions,states), state = seq(1,length(states)*length(actions)))
+state_mat <- matrix(state_seq$state, nrow = length(states), ncol= length(actions))
+plot_matrix(state_mat)  ## matrix, digits
+
 rewards <- c(0,-100,-100,0,-100,
                     10,10,10,10,-100,
                     10,10,-100,10,-100,
@@ -35,11 +39,6 @@ rewards <- c(0,-100,-100,0,-100,
                     -100,-100,10,10,100
                     )
 goal <- which(rewards==max(rewards), arr.ind=TRUE)
-
-state_seq <- cbind(merge(actions,states), state = seq(1,length(states)*length(actions)))
-state_mat <- matrix(state_seq$state, nrow = length(states), ncol= length(actions))
-plot_matrix(state_mat)  ## matrix, digits
-
 rewards_mat <- matrix(rewards, nrow = length(states), ncol= length(actions))
 plot_matrix(rewards_mat) ## matrix, digits
 # > rewards_mat
