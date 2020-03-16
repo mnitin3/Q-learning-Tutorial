@@ -1,27 +1,19 @@
 #### clean workspace #####
 cat("\014")
-setwd("C:/Users/INBLR02-WIN-027/Documents/R/QLearning/Working_Code_QL/")
 rm(list = ls(all = TRUE)); #start with empty workspace
 if(!is.null(dev.list()["RStudioGD"])){
  dev.off(dev.list()["RStudioGD"])
 }
 cat("\014")
-par=mfrow=c(1,2)
 #### clean workspace end #####
 
-#Plotting the matrix
+# Plotting the matrix
 plot_matrix <- function(mat_pot, digits_arg){
-  #  if(!is.null(dev.list()["RStudioGD"])){
-  #    dev.off(dev.list()["RStudioGD"])
-  #  }
-  #  par(mar=c(i, i, i, i)) # adapt margins
   digits_arg <- ifelse(missing(digits_arg),0,digits_arg)
   plot(mat_pot, cex = 1.2, fmt.cell=paste0('%.',digits_arg,'f'), 
        col=brewer.pal(3,"Blues"), breaks=c(-500, 0, 0, 500),
-       xlab="Actions", ylab = "States",main = "Q-Table")
+       xlab="Actions", ylab = "States",main = "")
 }
-#plot_matrix(rewards_mat)  ## matrix, digits
-
 
 set.seed(3)
 library('plot.matrix')
@@ -33,7 +25,7 @@ alpha <- 0.8
 gamma <- 0.7
 
   
-###### States #######
+###### Define Environment #######
 states <- seq(1, 5, by = 1);
 actions <- seq(1, 5, by = 1);
 rewards <- c(0,-100,-100,0,-100,
