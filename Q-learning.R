@@ -2,12 +2,16 @@
 cat("\014")
 rm(list = ls(all = TRUE)); #start with empty workspace
 if(!is.null(dev.list()["RStudioGD"])){
- dev.off(dev.list()["RStudioGD"])
+  dev.off(dev.list()["RStudioGD"])
 }
 cat("\014")
 #### clean workspace end #####
 
-# Plotting the matrix
+set.seed(3)
+library('plot.matrix')
+library(RColorBrewer)
+
+### Plotting the matrix Function ###
 plot_matrix <- function(mat_pot, digits_arg){
   digits_arg <- ifelse(missing(digits_arg),0,digits_arg)
   plot(mat_pot, cex = 1.2, fmt.cell=paste0('%.',digits_arg,'f'), 
@@ -15,31 +19,21 @@ plot_matrix <- function(mat_pot, digits_arg){
        xlab="Actions", ylab = "States",main = "")
 }
 
-set.seed(3)
-library('plot.matrix')
-library(RColorBrewer)
-
-##########
-N <- 20         ## No. of Episode
-alpha <- 0.8
-gamma <- 0.7
-
-  
 ###### Define Environment #######
 states <- seq(1, 5, by = 1);
-actions <- seq(1, 5, by = 1);
-state_seq <- cbind(merge(actions,states), state = seq(1,length(states)*length(actions)))
-state_mat <- matrix(state_seq$state, nrow = length(states), ncol= length(actions))
+#actions <- seq(1, 5, by = 1);
+state_seq <- cbind(merge(states,states), state = seq(1,length(states)*length(states)))
+state_mat <- matrix(state_seq$state, nrow = length(states), ncol= length(states))
 plot_matrix(state_mat)  ## matrix, digits
 
 rewards <- c(0,-100,-100,0,-100,
-                    10,10,10,10,-100,
-                    10,10,-100,10,-100,
-                    10,10,10,10,-100,
-                    -100,-100,10,10,100
-                    )
+             10,10,10,10,-100,
+             10,10,-100,10,-100,
+             10,10,10,10,-100,
+             -100,-100,10,10,100
+)
 goal <- which(rewards==max(rewards), arr.ind=TRUE)
-rewards_mat <- matrix(rewards, nrow = length(states), ncol= length(actions))
+rewards_mat <- matrix(rewards, nrow = length(states), ncol= length(states))
 plot_matrix(rewards_mat) ## matrix, digits
 # > rewards_mat
 #       [,1] [,2] [,3] [,4] [,5]
@@ -50,38 +44,37 @@ plot_matrix(rewards_mat) ## matrix, digits
 # [5,] -100 -100 -100 -100  100
 
 ## Initialize Q-Matrix
-Q <- matrix(0,  nrow = length(states), ncol= length(actions))
+Q <- matrix(0,  nrow = length(states), ncol= length(states))
 plot_matrix(Q,1)
 
 ###### get Next states ####### 
 diagonal_steps <- FALSE
 getNextStates <- function(cs) {
   stalen <- length(states);
-  actlen <- length(actions);
-  NS <- stalen*actlen
+  NS <- stalen*stalen
   aa <- state_seq[state_seq$state == cs,]
   if (aa$x == max(states)) {
     ns <- c(cs - 1, 
             cs - stalen, 
             cs + stalen);
-            #,cs - stalen - 1
-            #,cs + stalen - 1);
+    #,cs - stalen - 1
+    #,cs + stalen - 1);
     
   } else if (aa$x == min(states)) {
     ns <- c(cs + 1, 
             cs - stalen, 
             cs + stalen);
-            #, cs - stalen + 1);#, 
-            #cs + stalen + 1);
+    #, cs - stalen + 1);#, 
+    #cs + stalen + 1);
   } else {
     ns <- c(cs + 1,
             cs - 1,  
             cs - stalen, 
             cs + stalen);
-            #,cs + stalen + 1
-            #,cs - stalen + 1
-            #,cs + stalen - 1
-            #,cs - stalen - 1);
+    #,cs + stalen + 1
+    #,cs - stalen + 1
+    #,cs + stalen - 1
+    #,cs - stalen - 1);
   }
   nss <- sort(ns[ns > 0 & ns <= NS]);
   return(nss);
@@ -98,15 +91,17 @@ get_Prereward <- function(current_state){
   return(reward_curr)
 }
 
+
 ########### Episodes Execution ################
+N <- 20         # No. of Episode
+alpha <- 0.8    # Learning Rate
+gamma <- 0.7    # Discount Factor
+
+
 for (i in 1:N) {
-  if(!is.null(dev.list()["RStudioGD"])){#} & i%%10 ==0){
+  if(!is.null(dev.list()["RStudioGD"])){
     dev.off(dev.list()["RStudioGD"])
   }
-  #par=mfrow=c(1,2)
-  #plot_matrix(rewards_mat)
-  # plot_matrix(Q,1)
-  # Sys.sleep(3)
   current_episode <- i;
   cat("\nStart Episode: ", current_episode)
   
